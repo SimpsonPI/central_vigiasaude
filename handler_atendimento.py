@@ -150,7 +150,6 @@ async def menu_atendimento(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Menu principal - ações rápidas."""
     teclado = InlineKeyboardMarkup([
         [InlineKeyboardButton("🔍 Verificar Regulação", callback_data="atendimento_faq")],
-        [InlineKeyboardButton("💳 Planos e Assinaturas", callback_data="atendimento_planos")],
         [
             InlineKeyboardButton("📧 Email de Suporte", callback_data="atendimento_email"),
             InlineKeyboardButton("👤 Atendente Humano", callback_data="atendimento_humanizado"),
@@ -240,20 +239,18 @@ async def comando_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ])
 
         texto = (
-            f"🕐 <b>HORÁRIO DE ATENDIMENTO</b>  {status}\n"
-            f"• Segunda a Sexta: <b>08h às 18h</b>\n"
-            f"• Sábado: <b>08h às 12h</b>\n"
-            f"• Domingo: <b>Fechado</b>\n"
-            f"━━━━━━━━━━━━━━━━━━━━━━\n\n"
-
-            f"👋 Olá, <b>{nome}</b>! Bem-vindo(a) ao <b>VigiaSaúde</b>!\n\n"
-            "Sou o <b>VS</b>, seu assistente virtual. Aqui você pode:\n"
-            "• Acompanhar o status das suas regulações\n"
-            "• Tirar dúvidas sobre cadastro e planos\n"
-            "• Consultar horários e informações\n\n"
-            "⚠️ <i>Não realizo agendamento de consultas ou exames.</i>\n\n"
-            "👉 Se é a primeira vez aqui, comece por <b>\"Como funciona o VigiaSaúde?\"</b>."
-        )
+    f"🕐 <b>HORÁRIO DE ATENDIMENTO</b> {status}\n"
+    f"• Segunda a Sexta: <b>08h às 18h</b>\n"
+    f"• Sábado: <b>08h às 12h</b>\n"
+    f"• Domingo: <b>Fechado</b>\n"
+    f"━━━━━━━━━━━━━━━━━━━━━━\n\n"
+    f"👋 Olá, <b>{nome}</b>! Bem-vindo(a) ao <b>VigiaSaúde</b>!\n\n"
+    "Sou o <b>VS</b>, seu assistente virtual. Aqui você pode:\n"
+"• Tirar dúvidas sobre cadastro\n"
+    "• Consultar horários e informações\n\n"
+    "⚠️ <i>Não realizo agendamento de consultas ou exames.</i>\n\n"
+    '👉 Se é a primeira vez aqui, comece por <b>"Como funciona o VigiaSaúde?"</b>.'
+)
 
     if update.message:
         await update.message.reply_text(texto, parse_mode="HTML", reply_markup=teclado)
@@ -301,8 +298,7 @@ async def iniciar_faq(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "2️⃣ Como consultar minhas regulações?\n"
             "3️⃣ Onde encontrar o Cartão SUS ou ID?\n"
             "4️⃣ Como alterar meus dados?\n"
-            "5️⃣ Planos e Assinaturas\n"
-            "6️⃣ O VigiaSaude tem vínculo com o governo?"
+"5️⃣ O VigiaSaude tem vínculo com o governo?"
         )
 
         teclado = InlineKeyboardMarkup([
@@ -315,8 +311,7 @@ async def iniciar_faq(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 InlineKeyboardButton("4️⃣ Alterar Dados", callback_data="faq_alterar")
             ],
             [
-                InlineKeyboardButton("5️⃣ Planos", callback_data="faq_planos"),
-                InlineKeyboardButton("6️⃣ Vínculo Governo", callback_data="faq_governo")
+                InlineKeyboardButton("5️⃣ Vínculo Governo", callback_data="faq_governo")
             ],
             [InlineKeyboardButton("👤 Falar com Humano", callback_data="atendimento_humanizado")],
             [InlineKeyboardButton("⬅️ Voltar", callback_data="atendimento_menu")]
@@ -340,8 +335,7 @@ async def iniciar_faq(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 InlineKeyboardButton("4️⃣ Alterar Dados", callback_data="faq_alterar")
             ],
             [
-                InlineKeyboardButton("5️⃣ Planos", callback_data="faq_planos"),
-                InlineKeyboardButton("6️⃣ Vínculo Governo", callback_data="faq_governo")
+                InlineKeyboardButton("5️⃣ Vínculo Governo", callback_data="faq_governo")
             ],
             [InlineKeyboardButton("👤 Falar com Humano", callback_data="atendimento_humanizado")],
             [InlineKeyboardButton("⬅️ Voltar", callback_data="atendimento_menu")]
@@ -496,7 +490,7 @@ async def processar_mensagem_humanizado(update: Update, context: ContextTypes.DE
                 reply_markup=teclado_admin,
             )
         except Exception as e:
-           logger.error(f"Erro ao notificar admin: {e}")
+            logger.error(f"Erro ao notificar admin: {e}")
 
         # Confirma ao usuário
                 # Confirma ao usuário
@@ -980,7 +974,7 @@ async def processar_mensagem_geral(update: Update, context: ContextTypes.DEFAULT
             ])
             await update.message.reply_text(
                 "🤔 Não consegui entender sua pergunta.\n\n"
-                "Posso ajudar com dúvidas sobre cadastro, planos ou status de regulações.\n"
+"Posso ajudar com dúvidas sobre cadastro ou status de regulações.\n"
                 "Se preferir, você pode falar com um atendente humano ou consultar as perguntas frequentes.",
                 reply_markup=teclado
             )
@@ -997,7 +991,7 @@ async def sobre_vigia_saude(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "✅ <b>O que ele FAZ:</b>\n"
         "• Consulta o status de regulações já cadastradas\n"
         "• Envia alertas quando há mudanças\n"
-        "• Responde dúvidas sobre cadastro e planos\n\n"
+"• Responde dúvidas sobre cadastro\n\n"
         "❌ <b>O que ele NÃO FAZ:</b>\n"
         "• Não marca, agenda ou remarca consultas/exames\n"
         "• Não substitui a central de regulação do SUS\n\n"
@@ -1007,7 +1001,6 @@ async def sobre_vigia_saude(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     teclado = InlineKeyboardMarkup([
         [InlineKeyboardButton("🔍 Consultar minhas regulações", callback_data="atendimento_faq")],
-        [InlineKeyboardButton("💳 Ver planos", callback_data="atendimento_planos")],
         [InlineKeyboardButton("⬅️ Menu Principal", callback_data="atendimento_menu")],
     ])
 
