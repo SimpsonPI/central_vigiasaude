@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+
 load_dotenv()
 
 import os
@@ -110,9 +111,7 @@ async def configurar_comandos(app):
     job_queue = app.job_queue
     if job_queue:
         job_queue.run_repeating(
-            lambda _: asyncio.create_task(
-                verificar_chamados_para_avaliar(app)
-            ),
+            lambda _: asyncio.create_task(verificar_chamados_para_avaliar(app)),
             interval=300,
             first=120,
         )
@@ -121,29 +120,30 @@ async def configurar_comandos(app):
 
 def main():
     token = os.getenv("TELEGRAM_BOT_TOKEN") or TELEGRAM_BOT_TOKEN
-    app = (
-        ApplicationBuilder()
-        .token(token)
-        .post_init(configurar_comandos)
-        .build()
-    )
+    app = ApplicationBuilder().token(token).post_init(configurar_comandos).build()
 
     app.add_error_handler(erro_global_handler)
 
     # ─── ConversationHandler: Atendimento Humanizado ───
     conv_atendimento_humanizado = ConversationHandler(
         entry_points=[
-            CallbackQueryHandler(iniciar_atendimento_humanizado, pattern="^atendimento_humanizado$"),
+            CallbackQueryHandler(
+                iniciar_atendimento_humanizado, pattern="^atendimento_humanizado$"
+            ),
             CommandHandler("atendimento", iniciar_atendimento_humanizado),
         ],
         states={
             AGUARDANDO_MENSAGEM_CHAMADO: [
-                MessageHandler(filters.TEXT & ~filters.COMMAND, processar_mensagem_humanizado)
+                MessageHandler(
+                    filters.TEXT & ~filters.COMMAND, processar_mensagem_humanizado
+                )
             ],
         },
         fallbacks=[
             CommandHandler("cancelar", cancelar_atendimento),
-            CallbackQueryHandler(cancelar_atendimento, pattern="^cancelar_atendimento$"),
+            CallbackQueryHandler(
+                cancelar_atendimento, pattern="^cancelar_atendimento$"
+            ),
         ],
         per_message=False,
     )
@@ -151,11 +151,15 @@ def main():
     # ─── ConversationHandler: Resposta do usuário ao chamado ───
     conv_resposta_usuario = ConversationHandler(
         entry_points=[
-            CallbackQueryHandler(iniciar_resposta_usuario, pattern="^responder_chamado_\\d+$"),
+            CallbackQueryHandler(
+                iniciar_resposta_usuario, pattern="^responder_chamado_\\d+$"
+            ),
         ],
         states={
             AGUARDANDO_RESPOSTA_USUARIO: [
-                MessageHandler(filters.TEXT & ~filters.COMMAND, receber_resposta_usuario)
+                MessageHandler(
+                    filters.TEXT & ~filters.COMMAND, receber_resposta_usuario
+                )
             ],
         },
         fallbacks=[
@@ -171,7 +175,9 @@ def main():
         ],
         states={
             AGUARDANDO_RESPOSTA_ADMIN_RAPIDA: [
-                MessageHandler(filters.TEXT & ~filters.COMMAND, receber_resposta_rapida),
+                MessageHandler(
+                    filters.TEXT & ~filters.COMMAND, receber_resposta_rapida
+                ),
             ],
         },
         fallbacks=[
@@ -190,9 +196,7 @@ def main():
                 MessageHandler(filters.TEXT & ~filters.COMMAND, receber_resposta_admin)
             ],
         },
-        fallbacks=[
-            CommandHandler("cancelar_admin", cancelar_resposta_admin)
-        ],
+        fallbacks=[CommandHandler("cancelar_admin", cancelar_resposta_admin)],
         per_message=False,
     )
 
@@ -215,18 +219,30 @@ def main():
     app.add_handler(CommandHandler("avaliacoes", comando_avaliacoes))
 
     # ─── Callbacks gerais ───
-    app.add_handler(CallbackQueryHandler(menu_atendimento, pattern="^atendimento_menu$"))
+    app.add_handler(
+        CallbackQueryHandler(menu_atendimento, pattern="^atendimento_menu$")
+    )
     app.add_handler(CallbackQueryHandler(iniciar_faq, pattern="^atendimento_faq$"))
     app.add_handler(CallbackQueryHandler(ver_meus_chamados, pattern="^ver_chamados$"))
-    app.add_handler(CallbackQueryHandler(callback_email_suporte, pattern="^atendimento_email$"))
-    app.add_handler(CallbackQueryHandler(cancelar_atendimento, pattern="^cancelar_atendimento$"))
+    app.add_handler(
+        CallbackQueryHandler(callback_email_suporte, pattern="^atendimento_email$")
+    )
+    app.add_handler(
+        CallbackQueryHandler(cancelar_atendimento, pattern="^cancelar_atendimento$")
+    )
     app.add_handler(CallbackQueryHandler(menu_atendimento, pattern="^iniciar$"))
     app.add_handler(CallbackQueryHandler(sobre_vigia_saude, pattern="^sobre_vigia$"))
-    app.add_handler(CallbackQueryHandler(callback_planos, pattern="^atendimento_planos$"))
+    app.add_handler(
+        CallbackQueryHandler(callback_planos, pattern="^atendimento_planos$")
+    )
 
     # ─── Callbacks rápidos do admin (finalizar / ver detalhes) ───
-    app.add_handler(CallbackQueryHandler(callback_finalizar_chamado, pattern="^adminfim_\\d+$"))
-    app.add_handler(CallbackQueryHandler(callback_ver_detalhes, pattern="^adminver_\\d+$"))
+    app.add_handler(
+        CallbackQueryHandler(callback_finalizar_chamado, pattern="^adminfim_\\d+$")
+    )
+    app.add_handler(
+        CallbackQueryHandler(callback_ver_detalhes, pattern="^adminver_\\d+$")
+    )
 
     # ─── Callbacks de avaliação ───
     app.add_handler(CallbackQueryHandler(processar_avaliacao, pattern="^avaliar_"))
@@ -240,12 +256,22 @@ def main():
     app.add_handler(CallbackQueryHandler(faq_governo, pattern="^faq_governo$"))
 
     # ─── Callbacks do painel admin ───
-    app.add_handler(CallbackQueryHandler(callback_listar, pattern=r"^adm_(todos|aberto|em_atend)$"))
+    app.add_handler(
+        CallbackQueryHandler(callback_listar, pattern=r"^adm_(todos|aberto|em_atend)$")
+    )
     app.add_handler(CallbackQueryHandler(callback_estatisticas, pattern=r"^adm_stats$"))
-    app.add_handler(CallbackQueryHandler(callback_ver_chamado, pattern=r"^adm_ver_\d+$"))
+    app.add_handler(
+        CallbackQueryHandler(callback_ver_chamado, pattern=r"^adm_ver_\d+$")
+    )
     app.add_handler(CallbackQueryHandler(callback_voltar, pattern=r"^adm_voltar$"))
-    app.add_handler(CallbackQueryHandler(callback_finalizar, pattern=r"^adm_finalizar_\d+$"))
-    app.add_handler(CallbackQueryHandler(callback_cancelar_resposta, pattern=r"^adm_cancelar_resp_\d+$"))
+    app.add_handler(
+        CallbackQueryHandler(callback_finalizar, pattern=r"^adm_finalizar_\d+$")
+    )
+    app.add_handler(
+        CallbackQueryHandler(
+            callback_cancelar_resposta, pattern=r"^adm_cancelar_resp_\d+$"
+        )
+    )
 
     # ─── Handler global para mensagens (IA automática) ───
     app.add_handler(
@@ -254,7 +280,7 @@ def main():
     )
 
     # ─── Servidor HTTP auxiliar (Railway) ───
-    PORT = int(os.environ.get("PORT", "8080"))
+    PORT = int(os.environ.get("PORT") or "8080")
 
     class SimpleHandler(BaseHTTPRequestHandler):
         def do_GET(self):
