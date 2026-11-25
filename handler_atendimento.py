@@ -797,7 +797,6 @@ async def faq_consultar(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await query.answer()
     texto = (
         "🔍 <b>Como consultar minhas regulações?</b>\n\n"
-        "• Para ver todas as suas regulações: digite <b>/verificar_todos</b>.\n"
         "• Para consultar uma regulação específica: digite <b>/verificar_especifico</b>."
     )
     teclado = InlineKeyboardMarkup([[InlineKeyboardButton("⬅️ Voltar", callback_data="atendimento_faq")]])
